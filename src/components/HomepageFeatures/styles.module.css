@@ -1,0 +1,53 @@
+.features {
+  display: flex;
+  align-items: center;
+  padding: 4rem 0;
+  width: 100%;
+  background-color: var(--ifm-background-color);
+}
+
+.featureCard {
+  height: 100%;
+  padding: 2rem;
+  border-radius: 12px;
+  background: var(--ifm-card-background-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.featureCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border-color: var(--ifm-color-primary);
+}
+
+.featureSvg {
+  height: 100px; /* Mucho más pequeño */
+  width: 100px;
+  margin-bottom: 1.5rem;
+  object-fit: contain;
+}
+
+/* Título de la feature */
+.featureTitle {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* Descripción */
+.featureDescription {
+  color: var(--ifm-color-emphasis-600);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Invertir colores en modo oscuro para iconos negros */
+[data-theme='dark'] .featureSvg {
+  filter: invert(1) brightness(0.9);
+}
