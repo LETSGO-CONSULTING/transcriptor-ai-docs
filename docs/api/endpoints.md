@@ -7,6 +7,10 @@ sidebar_position: 3
 
 This document provides a detailed overview of the API endpoints available in the Live Translation application.
 
+:::info Draft
+New endpoints are listed as draft until the backend implementations are complete. Remove this banner when code and docs are in sync.
+:::
+
 ## Authentication
 
 All authentication-related endpoints are prefixed with `/auth`.
@@ -110,6 +114,36 @@ Update the password of the currently authenticated user.
 - **Response:**
   - A success message.
 
+### `GET /auth/profile`
+
+Get the profile of the currently authenticated user.
+
+- **Authentication:** Requires a valid JWT access token.
+- **Response:**
+  - The user's profile information.
+
+### `PATCH /auth/profile`
+
+Update the profile of the currently authenticated user.
+
+- **Authentication:** Requires a valid JWT access token.
+- **Request Body (multipart/form-data):**
+  - `name` (string, optional): The user's new name.
+  - `file` (file, optional): A new avatar image for the user.
+- **Response:**
+  - The updated user profile.
+
+### `PATCH /auth/password`
+
+Update the password of the currently authenticated user.
+
+- **Authentication:** Requires a valid JWT access token.
+- **Request Body:**
+  - `oldPassword` (string, required): The user's current password.
+  - `newPassword` (string, required): The user's new password.
+- **Response:**
+  - A success message.
+
 ## Audio
 
 Endpoints for managing audio settings.
@@ -124,6 +158,15 @@ Update the audio settings for the currently authenticated user.
   - `volume` (number, required): The volume level (0-100).
 - **Response:**
   - The updated audio settings.
+
+### `GET /audio/devices`
+
+List available audio input and output devices for the authenticated user (backed by cached enumerations or user preferences).
+
+- **Authentication:** Requires a valid JWT access token.
+- **Response:**
+  - `inputs` (array): Microphone devices.
+  - `outputs` (array): Output devices (where supported by the OS/browser).
 
 ## Preferences
 
@@ -140,6 +183,23 @@ Update the visual preferences for the currently authenticated user.
   - `brightness` (number, optional): The brightness level (0-100).
 - **Response:**
   - The updated preferences.
+
+## Settings
+
+General settings that do not fit audio or preferences.
+
+### `PATCH /settings/theme`
+
+Update theme and visual preferences.
+
+- **Authentication:** Requires a valid JWT access token.
+- **Request Body:**
+  - `theme` (string, optional): 'light', 'dark', or 'system'.
+  - `fontFamily` (string, optional).
+  - `fontSizeScale` (number, optional).
+  - `brightness` (number, optional).
+- **Response:**
+  - The updated settings payload.
 
 ## Transcription (WebSocket)
 
@@ -177,3 +237,37 @@ Sends an error message to the client.
 
 - **Payload:**
   - `message` (string): A description of the error.
+
+## Languages
+
+Endpoints for supported languages.
+
+### `GET /languages`
+
+Retrieve the list of supported input/output languages.
+
+- **Authentication:** Public or authenticated (TBD).
+- **Response:**
+  - Array of language objects (`code`, `name`, `nativeName?`).
+
+## Account and Billing
+
+Endpoints to manage subscriptions and payment methods (planned).
+
+### `GET /account/subscription`
+- **Authentication:** Requires a valid JWT access token.
+- **Response:** Current plan, status, renewal date, and usage summary.
+
+### `POST /account/subscription`
+- **Authentication:** Requires a valid JWT access token.
+- **Request Body:** Plan ID, payment method ID.
+- **Response:** Updated subscription status.
+
+### `GET /account/cards`
+- **Authentication:** Requires a valid JWT access token.
+- **Response:** Stored cards (masked details).
+
+### `POST /account/cards`
+- **Authentication:** Requires a valid JWT access token.
+- **Request Body:** Payment method token/provider payload.
+- **Response:** Card saved confirmation.
