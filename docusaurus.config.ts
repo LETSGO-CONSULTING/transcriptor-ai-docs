@@ -15,15 +15,11 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://your-docusaurus-site.example.com',
-  // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/live-translation-docs',
+  url: 'https://letsgo-consulting.github.io',
+  baseUrl: '/transcriptor-ai-docs/',
 
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'your-org', // Usually your GitHub org/user name.
-  projectName: 'live-translation-docs', // Usually your repo name.
+  organizationName: 'LETSGO-CONSULTING',
+  projectName: 'transcriptor-ai-docs',
 
   onBrokenLinks: 'throw',
 
@@ -71,7 +67,7 @@ const config: Config = {
           label: 'Documentation',
         },
         {
-          href: 'https://github.com/your-org/live-translation-docs',
+          href: 'https://github.com/LETSGO-CONSULTING/transcriptor-ai-docs',
           label: 'GitHub',
           position: 'right',
         },
@@ -106,7 +102,7 @@ const config: Config = {
             // },
             {
               label: 'GitHub',
-              href: 'https://github.com/your-org/live-translation-docs',
+              href: 'https://github.com/LETSGO-CONSULTING/transcriptor-ai-docs',
             },
           ],
         },
