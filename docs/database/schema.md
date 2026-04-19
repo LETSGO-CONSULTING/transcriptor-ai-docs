@@ -5,81 +5,143 @@ sidebar_position: 1
 
 # Database Schema
 
-The application uses **PostgreSQL** as its relational database, managed via **Prisma ORM**. Below is a detailed description of the data models and their relationships.
+PostgreSQL managed with **Prisma ORM 6.16.2** hosted on **Neon (us-east-1)**.
 
-## Users (`users`)
+## Models
 
-The core entity of the application. It stores the user's personal information and authentication details.
+### Users & Auth
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `id` | UUID | Unique identifier for the user. |
-| `email` | String | User's email address (Unique). |
-| `password` | String? | Hashed password (nullable for social logins). |
-| `name` | String? | User's full name. |
-| `picture` | String? | URL to the user's avatar. |
-| `is_email_verified` | Boolean | Whether the user's email has been verified. |
-| `last_login_provider` | String? | The provider used for the last login (e.g., 'google', 'local'). |
-| `openpayCustomerId` | String? | ID for the user in the OpenPay payment gateway. |
-| `created_at` | DateTime | Timestamp of account creation. |
-| `updated_at` | DateTime | Timestamp of the last update. |
+#### `users`
+| Field | Type | Notes |
+|-------|------|-------|
+| id | UUID | PK |
+| email | String | Unique |
+| password | String? | Nullable (social logins) |
+| name | String? | |
+| picture | String? | Avatar URL |
+| is_email_verified | Boolean | |
+| role | Enum | USER / ADMIN |
+| last_login_provider | String? | google / local |
+| created_at | DateTime | |
 
-**Relationships:**
-*   **`settings`**: One-to-One relation with `user_settings`.
-*   **`cards`**: One-to-Many relation with `cards`.
-*   **`refresh_tokens`**: One-to-Many relation with `refresh_tokens`.
-*   **`user_identities`**: One-to-Many relation with `user_identities`.
+Relations: settings (1:1), refresh_tokens (1:N), user_identities (1:N), user_payments (1:N)
 
-## User Settings (`user_settings`)
+#### `user_identities`
+OAuth provider links (Google).
 
-Stores the user's preferences for the application, including audio devices, languages, and visual themes.
+| Field | Type |
+|-------|------|
+| id | BigInt |
+| user_id | UUID FK |
+| provider | String (google) |
+| provider_user_id | String |
+| raw_profile | Json? |
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `id` | String | Unique identifier. |
-| `user_id` | UUID | Foreign key to the `users` table. |
-| `selected_audio_input_id` | String? | ID of the preferred microphone. |
-| `selected_audio_output_id` | String? | ID of the preferred speaker. |
-| `selected_input_language_code` | String? | Code of the preferred input language (e.g., 'en-US'). |
-| `selected_output_language_code` | String? | Code of the preferred output language (e.g., 'es-ES'). |
-| `theme` | String | Visual theme ('light', 'dark', 'system'). Default: 'system'. |
-| `font_family` | String | Preferred font family. Default: 'Inter'. |
-| `font_size_scale` | Float | Font size scaling factor. Default: 1.0. |
-| `brightness` | Float | Screen brightness level. Default: 1.0. |
+#### `refresh_tokens`
+| Field | Type |
+|-------|------|
+| id | BigInt |
+| user_id | UUID FK |
+| token_hash | String |
+| expires_at | DateTime |
+| revoked_at | DateTime? |
 
-## Payment Cards (`cards`)
+#### `password_reset_tokens`
+| Field | Type |
+|-------|------|
+| id | BigInt |
+| user_id | UUID FK |
+| token | String |
+| expires_at | DateTime |
 
-Stores the user's saved payment methods (credit/debit cards) for subscriptions.
+### Preferences
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `id` | String | Unique identifier. |
-| `userId` | UUID | Foreign key to the `users` table. |
-| `openpayCardId` | String | ID of the card in OpenPay. |
-| `brand` | String? | Card brand (e.g., 'visa', 'mastercard'). |
-| `last4` | String? | Last 4 digits of the card number. |
-| `isActive` | Boolean | Whether this is the default card for payments. |
+#### `user_settings`
+| Field | Type | Default |
+|-------|------|---------|
+| id | String | |
+| user_id | UUID FK | |
+| selected_audio_input_id | String? | |
+| selected_audio_output_id | String? | |
+| selected_input_language_code | String? | |
+| selected_output_language_code | String? | |
+| theme | String | system |
+| font_family | String | Inter |
+| font_size_scale | Float | 1.0 |
+| brightness | Float | 1.0 |
 
-## Refresh Tokens (`refresh_tokens`)
+### Languages
 
-Used for maintaining persistent user sessions securely.
+#### `languages`
+| Field | Type |
+|-------|------|
+| id | String |
+| code | String (e.g. en-US) |
+| name | String |
+| supports_stt | Boolean |
+| supports_translation | Boolean |
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `id` | BigInt | Unique identifier. |
-| `user_id` | UUID | Foreign key to the `users` table. |
-| `token_hash` | String | Hashed version of the refresh token. |
-| `expires_at` | DateTime | Expiration date of the token. |
-| `revoked_at` | DateTime? | Timestamp when the token was revoked (if applicable). |
+### Billing & Payments
 
-## User Identities (`user_identities`)
+#### `pricing_plans`
+| Field | Type |
+|-------|------|
+| id | String |
+| name | String |
+| minutes_per_month | Int |
+| price | Float |
+| currency | String |
+| stripe_price_id | String? |
 
-Stores linked social accounts (e.g., Google, Apple) for a user.
+#### `pricing_topups`
+| Field | Type |
+|-------|------|
+| id | String |
+| name | String |
+| minutes | Int |
+| price | Float |
+| currency | String |
+| stripe_price_id | String? |
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `id` | BigInt | Unique identifier. |
-| `user_id` | UUID | Foreign key to the `users` table. |
-| `provider` | String | Name of the provider (e.g., 'google'). |
-| `provider_user_id` | String | Unique ID of the user within that provider. |
-| `raw_profile` | Json? | Raw profile data returned by the provider. |
+#### `user_subscriptions`
+| Field | Type |
+|-------|------|
+| id | String |
+| user_id | UUID FK |
+| plan_id | FK |
+| status | Enum (active/cancelled/expired) |
+| minutes_used | Int |
+| minutes_remaining | Int |
+| renews_at | DateTime |
+
+#### `user_payments`
+| Field | Type |
+|-------|------|
+| id | String |
+| user_id | UUID FK |
+| amount | Float |
+| currency | String |
+| provider | String (stripe/paypal/culqi) |
+| status | Enum |
+| metadata | Json? |
+
+### Audit
+
+#### `audit_logs`
+| Field | Type |
+|-------|------|
+| id | BigInt |
+| user_id | UUID FK |
+| action | String |
+| resource | String |
+| metadata | Json? |
+| created_at | DateTime |
+
+## Commands
+
+```bash
+npx prisma migrate dev      # Run migrations (dev)
+npx prisma migrate deploy   # Run migrations (production)
+npx prisma generate         # Regenerate client
+npx prisma studio           # Visual DB browser
+```
